@@ -88,12 +88,12 @@ public class NoteServiceImpL implements NoteService {
 
     public User getUser(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException(userId, "User"));
+                .orElseThrow(() -> new ResourceNotFoundException(userId.toString(), "User"));
     }
 
     public Note getNote(Long id) {
         return noteRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(id, "Note"));
+                .orElseThrow(() -> new ResourceNotFoundException(id.toString(), "Note"));
     }
 
 }

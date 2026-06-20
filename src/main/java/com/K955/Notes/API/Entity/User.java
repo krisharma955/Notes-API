@@ -31,8 +31,10 @@ public class User {
     @Column(nullable = false)
     String password;
 
+    @CreationTimestamp
     Instant createdAt;
 
+    @UpdateTimestamp
     Instant updatedAt;
 
     Instant deletedAt;

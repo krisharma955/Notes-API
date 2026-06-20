@@ -47,7 +47,7 @@ public class UserServiceImpL implements UserService {
 
     public User getUser(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException(userId, "User"));
+                .orElseThrow(() -> new ResourceNotFoundException(userId.toString(), "User"));
     }
 
 }
