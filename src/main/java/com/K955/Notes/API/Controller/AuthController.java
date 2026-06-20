@@ -6,6 +6,7 @@ import com.K955.Notes.API.DTOs.Auth.SignupRequest;
 import com.K955.Notes.API.Security.JwtAuthFilter;
 import com.K955.Notes.API.Security.JwtAuthUtil;
 import com.K955.Notes.API.Service.AuthService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,11 +26,13 @@ public class AuthController {
     private final JwtAuthUtil jwtAuthUtil;
 
     @PostMapping("/signup")
+    @Operation(summary = "User SignUp")
     public ResponseEntity<AuthResponse> signup(@Valid @RequestBody SignupRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.signup(request));
     }
 
     @PostMapping("/login")
+    @Operation(summary = "User Login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         return ResponseEntity.ok(authService.login(request));
     }
