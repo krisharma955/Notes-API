@@ -81,12 +81,6 @@ public class NoteServiceImpL implements NoteService {
     }
 
     @Override
-    public List<NoteResponse> getAllUserNotes(Long userId) {
-        List<Note> noteList = noteRepository.getAllNotes(userId);
-        return noteMapper.toListOfNoteResponse(noteList);
-    }
-
-    @Override
     public NoteUpdateResponse pinNote(Long userId, Long id, PinNoteRequest request) {
         User user = getUser(userId);
         Note note = getNote(id);
@@ -147,31 +141,20 @@ public class NoteServiceImpL implements NoteService {
     }
 
     @Override
-    public List<NoteResponse> getNotesSearch(Long userId, String keyword) {
-        List<Note> noteList = noteRepository.findByUserIdAndTitleContainingIgnoreCase(userId, keyword);
-        return noteList.stream()
-                .map(noteMapper::toNoteResponse)
-                .toList();
-    }
-
-    @Override
-    public List<NoteResponse> getNotesSort(Long userId, String sortBy, String direction) {
+    public Page<NoteResponse> getAllUserNotes(Long userId, String keyword, int page, int size, String sortBy, String direction) {
         Sort sort = direction.equalsIgnoreCase("asc")
                 ? Sort.by(sortBy).ascending()
                 : Sort.by(sortBy).descending();
 
-        List<Note> noteList = noteRepository.findByUserId(userId, sort);
+        Pageable pageable = PageRequest.of(page, size, sort);
 
-        return noteList.stream()
-                .map(noteMapper::toNoteResponse)
-                .toList();
-    }
+        Page<Note> notes;
 
-    @Override
-    public Page<NoteResponse> getNotesPage(Long userId, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-
-        Page<Note> notes = noteRepository.findByUserId(userId, pageable);
+        if(keyword == null || keyword.isBlank()) {
+            notes = noteRepository.findByUserId(userId, pageable);
+        } else {
+            notes = noteRepository.findByUserIdAndTitleContainingIgnoreCase(userId, keyword, pageable);
+        }
 
         return notes.map(noteMapper::toNoteResponse);
     }

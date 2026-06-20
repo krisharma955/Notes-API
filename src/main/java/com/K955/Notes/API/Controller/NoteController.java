@@ -1,6 +1,7 @@
 package com.K955.Notes.API.Controller;
 
 import com.K955.Notes.API.DTOs.Note.*;
+import com.K955.Notes.API.Entity.Note;
 import com.K955.Notes.API.Security.JwtAuthUtil;
 import com.K955.Notes.API.Service.NoteService;
 import jakarta.validation.Valid;
@@ -33,29 +34,17 @@ public class NoteController {
     }
 
     @GetMapping
-    public ResponseEntity<List<NoteResponse>> getNotesSearch(
-            @RequestParam(required = false) String keyword
-    ) {
-        Long userId = jwtAuthUtil.getCurrentUserId();
-        return ResponseEntity.ok(noteService.getNotesSearch(userId, keyword));
-    }
-
-    @GetMapping
-    public ResponseEntity<List<NoteResponse>> getNotesSort(
+    public ResponseEntity<Page<NoteResponse>> getAllNotes(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "desc") String direction
     ) {
         Long userId = jwtAuthUtil.getCurrentUserId();
-        return ResponseEntity.ok(noteService.getNotesSort(userId, sortBy, direction));
-    }
-
-    @GetMapping
-    public ResponseEntity<Page<NoteResponse>> getNotesSort(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        Long userId = jwtAuthUtil.getCurrentUserId();
-        return ResponseEntity.ok(noteService.getNotesPage(userId, page, size));
+        return ResponseEntity.ok(
+                noteService.getAllUserNotes(userId, keyword, page, size, sortBy, direction)
+        );
     }
 
     @PatchMapping("/{id}")

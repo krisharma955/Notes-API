@@ -16,15 +16,9 @@ public interface NoteService {
 
     void deleteNoteById(Long userId, Long id);
 
-    List<NoteResponse> getAllUserNotes(Long userId);
-
     NoteUpdateResponse pinNote(Long userId, Long id, @Valid PinNoteRequest request);
 
     NoteUpdateResponse archiveNote(Long userId, Long id, @Valid ArchiveNoteRequest request);
 
-    List<NoteResponse> getNotesSearch(Long userId, String keyword);
-
-    List<NoteResponse> getNotesSort(Long userId, String sortBy, String direction);
-
-    Page<NoteResponse> getNotesPage(Long userId, int page, int size);
+    Page<NoteResponse> getAllUserNotes(Long userId, String keyword, int page, int size, String sortBy, String direction);
 }
