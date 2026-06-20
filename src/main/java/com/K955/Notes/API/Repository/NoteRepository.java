@@ -1,6 +1,9 @@
 package com.K955.Notes.API.Repository;
 
 import com.K955.Notes.API.Entity.Note;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -18,5 +21,11 @@ public interface NoteRepository extends JpaRepository<Note, Long> {
             ORDER BY n.updatedAt DESC
             """)
     List<Note> getAllNotes(@Param("userId") Long userId);
+
+    List<Note> findByUserIdAndTitleContainingIgnoreCase(Long userId, String keyword);
+
+    List<Note> findByUserId(Long userId, Sort sort);
+
+    Page<Note> findByUserId(Long userId, Pageable pageable);
 
 }

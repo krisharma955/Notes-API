@@ -31,6 +31,12 @@ public class Note {
 
     String content;
 
+    @Builder.Default
+    Boolean pinned = false;
+
+    @Builder.Default
+    Boolean archived = false;
+
     @CreationTimestamp
     Instant createdAt;
 

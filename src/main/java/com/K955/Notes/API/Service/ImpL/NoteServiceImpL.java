@@ -1,8 +1,6 @@
 package com.K955.Notes.API.Service.ImpL;
 
-import com.K955.Notes.API.DTOs.Note.NoteRequest;
-import com.K955.Notes.API.DTOs.Note.NoteResponse;
-import com.K955.Notes.API.DTOs.Note.UpdateNoteRequest;
+import com.K955.Notes.API.DTOs.Note.*;
 import com.K955.Notes.API.Entity.Note;
 import com.K955.Notes.API.Entity.User;
 import com.K955.Notes.API.Exceptions.BadRequestException;
@@ -12,6 +10,10 @@ import com.K955.Notes.API.Repository.NoteRepository;
 import com.K955.Notes.API.Repository.UserRepository;
 import com.K955.Notes.API.Service.NoteService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -82,6 +84,96 @@ public class NoteServiceImpL implements NoteService {
     public List<NoteResponse> getAllUserNotes(Long userId) {
         List<Note> noteList = noteRepository.getAllNotes(userId);
         return noteMapper.toListOfNoteResponse(noteList);
+    }
+
+    @Override
+    public NoteUpdateResponse pinNote(Long userId, Long id, PinNoteRequest request) {
+        User user = getUser(userId);
+        Note note = getNote(id);
+        StringBuilder sb = new StringBuilder();
+
+        if(!note.getUser().getId().equals(user.getId())) {
+            throw new BadRequestException("Not Accessible");
+        }
+
+        if(note.getPinned().equals(false) && request.pin().equals(true)) { //pin
+            note.setPinned(request.pin());
+            noteRepository.save(note);
+            sb.append("Note Pinned Successfully");
+        }
+        else if(note.getPinned().equals(true) && request.pin().equals(true)) { //already pinned
+            sb.append("Note is already Pinned");
+        }
+        else if(note.getPinned().equals(true) && request.pin().equals(false)) { //unpin
+            note.setPinned(request.pin());
+            noteRepository.save(note);
+            sb.append("Note Unpinned Successfully");
+        }
+        else {
+            sb.append("Note is not Pinned");
+        }
+
+        return new NoteUpdateResponse(id, note.getTitle(), sb.toString());
+    }
+
+    @Override
+    public NoteUpdateResponse archiveNote(Long userId, Long id, ArchiveNoteRequest request) {
+        User user = getUser(userId);
+        Note note = getNote(id);
+        StringBuilder sb = new StringBuilder();
+
+        if(!note.getUser().getId().equals(user.getId())) {
+            throw new BadRequestException("Not Accessible");
+        }
+
+        if(note.getArchived().equals(false) && request.archive().equals(true)) { //archive
+            note.setArchived(request.archive());
+            noteRepository.save(note);
+            sb.append("Note Archived Successfully");
+        }
+        else if(note.getArchived().equals(true) && request.archive().equals(true)) { //already archived
+            sb.append("Note is already Archived");
+        }
+        else if(note.getArchived().equals(true) && request.archive().equals(false)) { //restore
+            note.setArchived(request.archive());
+            noteRepository.save(note);
+            sb.append("Note Restored Successfully");
+        }
+        else { //already restored
+            sb.append("Note is not Archived");
+        }
+
+        return new NoteUpdateResponse(id, note.getTitle(), sb.toString());
+    }
+
+    @Override
+    public List<NoteResponse> getNotesSearch(Long userId, String keyword) {
+        List<Note> noteList = noteRepository.findByUserIdAndTitleContainingIgnoreCase(userId, keyword);
+        return noteList.stream()
+                .map(noteMapper::toNoteResponse)
+                .toList();
+    }
+
+    @Override
+    public List<NoteResponse> getNotesSort(Long userId, String sortBy, String direction) {
+        Sort sort = direction.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        List<Note> noteList = noteRepository.findByUserId(userId, sort);
+
+        return noteList.stream()
+                .map(noteMapper::toNoteResponse)
+                .toList();
+    }
+
+    @Override
+    public Page<NoteResponse> getNotesPage(Long userId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<Note> notes = noteRepository.findByUserId(userId, pageable);
+
+        return notes.map(noteMapper::toNoteResponse);
     }
 
     /// Util Methods
