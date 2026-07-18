@@ -77,7 +77,7 @@ public class NoteServiceImpL implements NoteService {
         }
 
         note.setDeletedAt(Instant.now());
-        noteRepository.save(note);
+        noteRepository.delete(note);
     }
 
     @Override
